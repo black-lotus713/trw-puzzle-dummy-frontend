@@ -16,6 +16,25 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD
 });
 
+// Initialize session table if it doesn't exist
+async function initializeSessionTable() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS session (
+        sid varchar NOT NULL COLLATE "default",
+        sess json NOT NULL,
+        expire timestamp(6) NOT NULL,
+        PRIMARY KEY (sid)
+      ) WITH (OIDS=FALSE);
+      CREATE INDEX IF NOT EXISTS idx_session_expire ON session(expire);
+    `);
+    console.log('Session table initialized');
+  } catch (err) {
+    console.error('Error initializing session table:', err);
+    throw err;
+  }
+}
+
 // Session middleware
 app.use(session({
   store: new pgSession({
@@ -212,4 +231,14 @@ app.get('/api/check-auth', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Start server after initializing tables
+(async () => {
+  try {
+    await initializeSessionTable();
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  } catch (err) {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+  }
+})();
