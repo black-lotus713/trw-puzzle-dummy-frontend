@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profiles</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #1a1a2e; color: #eee; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .container { width: 100%; max-width: 400px; padding: 20px; }
+    h2 { text-align: center; margin-bottom: 20px; color: #e2b714; }
+    .tabs { display: flex; margin-bottom: 20px; }
+    .tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; background: #16213e; border: 1px solid #0f3460; }
+    .tab.active { background: #0f3460; color: #e2b714; }
+    input { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #0f3460; background: #16213e; color: #eee; border-radius: 4px; }
+    button { width: 100%; padding: 12px; background: #e2b714; color: #1a1a2e; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    button:hover { background: #c9a012; }
+    .message { margin-top: 15px; padding: 10px; border-radius: 4px; text-align: center; }
+    .success { background: #0f3460; color: #4ecca3; }
+    .error { background: #3d0000; color: #ff6b6b; }
+    .profile { margin-top: 20px; padding: 15px; background: #16213e; border-radius: 4px; }
+    .profile p { margin-bottom: 8px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Profiles App</h2>
+
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('signup')">Sign Up</div>
+      <div class="tab" onclick="showTab('login')">Log In</div>
+    </div>
+
+    <!-- Sign Up -->
+    <div id="signup-form">
+      <input type="text" id="s-first" placeholder="First name" />
+      <input type="text" id="s-last" placeholder="Last name" />
+      <input type="text" id="s-username" placeholder="Username" />
+      <input type="email" id="s-email" placeholder="Email" />
+      <input type="password" id="s-password" placeholder="Password" />
+      <button onclick="signup()">Create Account</button>
+    </div>
+
+    <!-- Login -->
+    <div id="login-form" class="hidden">
+      <input type="text" id="l-username" placeholder="Username" />
+      <input type="password" id="l-password" placeholder="Password" />
+      <button onclick="login()">Log In</button>
+    </div>
+
+    <div id="message"></div>
+    <div id="profile" class="profile hidden"></div>
+  </div>
+
+  <script>
+    function showTab(tab) {
+      document.getElementById('signup-form').classList.toggle('hidden', tab !== 'signup');
+      document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
+      document.querySelectorAll('.tab').forEach((t, i) => {
+        t.classList.toggle('active', (tab === 'signup' && i === 0) || (tab === 'login' && i === 1));
+      });
+      document.getElementById('message').innerHTML = '';
+      document.getElementById('profile').classList.add('hidden');
+    }
+
+    function showMessage(text, type) {
+      document.getElementById('message').innerHTML = `<div class="message ${type}">${text}</div>`;
+    }
+
+    function showProfile(user) {
+      const el = document.getElementById('profile');
+      el.classList.remove('hidden');
+      el.innerHTML = `
+        <p><strong>Name:</strong> ${user.first_name} ${user.last_name}</p>
+        <p><strong>Username:</strong> ${user.username}</p>
+        <p><strong>Email:</strong> ${user.email}</p>
+        <p><strong>Joined:</strong> ${new Date(user.created_at).toLocaleDateString()}</p>
+      `;
+    }
+
+    async function signup() {
+      const body = {
+        firstName: document.getElementById('s-first').value,
+        lastName: document.getElementById('s-last').value,
+        username: document.getElementById('s-username').value,
+        email: document.getElementById('s-email').value,
+        password: document.getElementById('s-password').value
+      };
+
+      try {
+        const res = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showMessage('Account created!', 'success');
+          showProfile(data.user);
+        } else {
+          showMessage(data.error, 'error');
+        }
+      } catch (err) {
+        showMessage('Connection error', 'error');
+      }
+    }
+
+    async function login() {
+      const body = {
+        username: document.getElementById('l-username').value,
+        password: document.getElementById('l-password').value
+      };
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showMessage('Welcome back!', 'success');
+          showProfile(data.user);
+        } else {
+          showMessage(data.error, 'error');
+        }
+      } catch (err) {
+        showMessage('Connection error', 'error');
+      }
+    }
+  </script>
+</body>
+</html>
