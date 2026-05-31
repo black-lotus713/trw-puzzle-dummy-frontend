@@ -21,6 +21,10 @@
     .profile { margin-top: 20px; padding: 15px; background: #16213e; border-radius: 4px; }
     .profile p { margin-bottom: 8px; }
     .hidden { display: none; }
+    .logout-btn { margin-top: 15px; background: #c9a012; }
+    .logout-btn:hover { background: #a67c0a; }
+    .form-section { display: none; }
+    .form-section.active { display: block; }
   </style>
 </head>
 <body>
@@ -30,10 +34,11 @@
     <div class="tabs">
       <div class="tab active" onclick="showTab('signup')">Sign Up</div>
       <div class="tab" onclick="showTab('login')">Log In</div>
+      <div class="tab hidden" id="settings-tab" onclick="showTab('settings')">Settings</div>
     </div>
 
     <!-- Sign Up -->
-    <div id="signup-form">
+    <div id="signup-form" class="form-section active">
       <input type="text" id="s-first" placeholder="First name" />
       <input type="text" id="s-last" placeholder="Last name" />
       <input type="text" id="s-username" placeholder="Username" />
@@ -43,10 +48,21 @@
     </div>
 
     <!-- Login -->
-    <div id="login-form" class="hidden">
+    <div id="login-form" class="form-section hidden">
       <input type="text" id="l-username" placeholder="Username" />
       <input type="password" id="l-password" placeholder="Password" />
       <button onclick="login()">Log In</button>
+    </div>
+
+    <!-- Settings -->
+    <div id="settings-form" class="form-section hidden">
+      <div id="profile-info"></div>
+      <h3 style="color: #e2b714; margin-top: 20px; margin-bottom: 10px;">Change Password</h3>
+      <input type="password" id="current-password" placeholder="Current password" />
+      <input type="password" id="new-password" placeholder="New password" />
+      <input type="password" id="confirm-password" placeholder="Confirm new password" />
+      <button onclick="changePassword()">Change Password</button>
+      <button class="logout-btn" onclick="logout()">Log Out</button>
     </div>
 
     <div id="message"></div>
@@ -54,14 +70,68 @@
   </div>
 
   <script>
-    function showTab(tab) {
-      document.getElementById('signup-form').classList.toggle('hidden', tab !== 'signup');
-      document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
-      document.querySelectorAll('.tab').forEach((t, i) => {
-        t.classList.toggle('active', (tab === 'signup' && i === 0) || (tab === 'login' && i === 1));
-      });
+    // Check authentication on page load
+    window.addEventListener('load', async () => {
+      await checkAuth();
+    });
+
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/check-auth');
+        const data = await res.json();
+        if (data.authenticated) {
+          showAuthenticatedUI(data.user);
+        }
+      } catch (err) {
+        console.error('Auth check error:', err);
+      }
+    }
+
+    function showAuthenticatedUI(user) {
+      // Hide signup/login tabs, show settings tab
+      document.getElementById('signup-form').classList.remove('active');
+      document.getElementById('login-form').classList.remove('active');
+      document.getElementById('settings-form').classList.add('active');
+      
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('settings-tab').classList.remove('hidden');
+      document.getElementById('settings-tab').classList.add('active');
+      
+      document.querySelector('.tab:nth-child(1)').classList.add('hidden');
+      document.querySelector('.tab:nth-child(2)').classList.add('hidden');
+      
+      loadSettings();
+    }
+
+    function showUnauthenticatedUI() {
+      // Show signup/login tabs, hide settings tab
+      document.getElementById('settings-form').classList.remove('active');
+      document.getElementById('signup-form').classList.add('active');
+      document.getElementById('settings-tab').classList.add('hidden');
+      
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('hidden', 'active'));
+      document.querySelector('.tab:nth-child(1)').classList.add('active');
+      
       document.getElementById('message').innerHTML = '';
       document.getElementById('profile').classList.add('hidden');
+    }
+
+    function showTab(tab) {
+      document.getElementById('signup-form').classList.toggle('active', tab === 'signup');
+      document.getElementById('login-form').classList.toggle('active', tab === 'login');
+      document.getElementById('settings-form').classList.toggle('active', tab === 'settings');
+      
+      document.querySelectorAll('.tab').forEach((t, i) => {
+        t.classList.toggle('active', 
+          (tab === 'signup' && i === 0) || 
+          (tab === 'login' && i === 1) ||
+          (tab === 'settings' && t.id === 'settings-tab')
+        );
+      });
+      document.getElementById('message').innerHTML = '';
+      if (tab !== 'settings') {
+        document.getElementById('profile').classList.add('hidden');
+      }
     }
 
     function showMessage(text, type) {
@@ -77,6 +147,33 @@
         <p><strong>Email:</strong> ${user.email}</p>
         <p><strong>Joined:</strong> ${new Date(user.created_at).toLocaleDateString()}</p>
       `;
+    }
+
+    async function loadSettings() {
+      try {
+        const res = await fetch('/api/settings');
+        if (!res.ok) {
+          showMessage('Session expired. Please log in again.', 'error');
+          showUnauthenticatedUI();
+          return;
+        }
+        const data = await res.json();
+        const user = data.user;
+        const profileEl = document.getElementById('profile-info');
+        profileEl.innerHTML = `
+          <div class="profile">
+            <p><strong>Name:</strong> ${user.first_name} ${user.last_name}</p>
+            <p><strong>Username:</strong> ${user.username}</p>
+            <p><strong>Email:</strong> ${user.email}</p>
+            ${user.phone ? `<p><strong>Phone:</strong> ${user.phone}</p>` : ''}
+            ${user.bio ? `<p><strong>Bio:</strong> ${user.bio}</p>` : ''}
+            <p><strong>Member since:</strong> ${new Date(user.created_at).toLocaleDateString()}</p>
+          </div>
+        `;
+      } catch (err) {
+        console.error('Load settings error:', err);
+        showMessage('Error loading settings', 'error');
+      }
     }
 
     async function signup() {
@@ -96,8 +193,12 @@
         });
         const data = await res.json();
         if (res.ok) {
-          showMessage('Account created!', 'success');
-          showProfile(data.user);
+          showMessage('Account created! Please log in.', 'success');
+          document.getElementById('s-first').value = '';
+          document.getElementById('s-last').value = '';
+          document.getElementById('s-username').value = '';
+          document.getElementById('s-email').value = '';
+          document.getElementById('s-password').value = '';
         } else {
           showMessage(data.error, 'error');
         }
@@ -116,14 +217,81 @@
         const res = await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
+          body: JSON.stringify(body),
+          credentials: 'same-origin'
         });
         const data = await res.json();
         if (res.ok) {
           showMessage('Welcome back!', 'success');
-          showProfile(data.user);
+          showAuthenticatedUI(data.user);
         } else {
           showMessage(data.error, 'error');
+        }
+      } catch (err) {
+        showMessage('Connection error', 'error');
+      }
+    }
+
+    async function changePassword() {
+      const currentPassword = document.getElementById('current-password').value;
+      const newPassword = document.getElementById('new-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        showMessage('All password fields are required', 'error');
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        showMessage('New passwords do not match', 'error');
+        return;
+      }
+
+      if (newPassword.length < 6) {
+        showMessage('New password must be at least 6 characters', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            currentPassword,
+            newPassword
+          }),
+          credentials: 'same-origin'
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showMessage(data.message, 'success');
+          document.getElementById('current-password').value = '';
+          document.getElementById('new-password').value = '';
+          document.getElementById('confirm-password').value = '';
+          setTimeout(() => {
+            showUnauthenticatedUI();
+            showTab('login');
+          }, 2000);
+        } else {
+          showMessage(data.error, 'error');
+        }
+      } catch (err) {
+        showMessage('Connection error', 'error');
+      }
+    }
+
+    async function logout() {
+      try {
+        const res = await fetch('/api/logout', {
+          method: 'POST',
+          credentials: 'same-origin'
+        });
+        if (res.ok) {
+          showMessage('Logged out successfully', 'success');
+          showUnauthenticatedUI();
+          showTab('login');
+        } else {
+          showMessage('Logout failed', 'error');
         }
       } catch (err) {
         showMessage('Connection error', 'error');
