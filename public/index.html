@@ -6,21 +6,22 @@
   <title>Profiles</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    body { 
+
+    body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
       background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 50%, #16213e 100%);
       color: #e0e0e0;
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
       min-height: 100vh;
-      padding: 20px;
+      padding: 40px 20px;
     }
-    
-    .container { 
-      width: 100%; 
-      max-width: 450px; 
+
+    /* ── Auth container ──────────────────────────────────────────── */
+    #auth-container {
+      width: 100%;
+      max-width: 450px;
       padding: 40px 30px;
       background: rgba(22, 33, 62, 0.7);
       border-radius: 12px;
@@ -28,10 +29,10 @@
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(10px);
     }
-    
-    h2 { 
-      text-align: center; 
-      margin-bottom: 30px; 
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
       color: #e2b714;
       font-size: 28px;
       font-weight: 600;
@@ -48,47 +49,34 @@
       margin-bottom: 16px;
       opacity: 0.9;
     }
-    
-    .tabs { 
-      display: flex; 
+
+    /* ── Auth tabs ───────────────────────────────────────────────── */
+    .tabs {
+      display: flex;
       margin-bottom: 30px;
-      gap: 0;
       border-bottom: 2px solid rgba(226, 183, 20, 0.2);
     }
-    
-    .tab { 
-      flex: 1; 
-      padding: 12px 16px; 
-      text-align: center; 
-      cursor: pointer; 
+
+    .tab {
+      flex: 1;
+      padding: 12px 16px;
+      text-align: center;
+      cursor: pointer;
       background: transparent;
-      border: none;
       border-bottom: 3px solid transparent;
       color: #b0b0b0;
       font-weight: 600;
       font-size: 14px;
       transition: all 0.3s ease;
       margin-bottom: -2px;
-      position: relative;
-    }
-    
-    .tab:hover { 
-      color: #e2b714;
-      background: rgba(226, 183, 20, 0.05);
-    }
-    
-    .tab.active { 
-      border-bottom-color: #e2b714;
-      color: #e2b714;
-      background: rgba(226, 183, 20, 0.08);
     }
 
-    .tab.hidden {
-      display: none;
-    }
-    
-    input { 
-      width: 100%; 
+    .tab:hover { color: #e2b714; background: rgba(226, 183, 20, 0.05); }
+    .tab.active { border-bottom-color: #e2b714; color: #e2b714; background: rgba(226, 183, 20, 0.08); }
+
+    /* ── Inputs (text / email / password) ────────────────────────── */
+    input:not([type="range"]):not([type="checkbox"]) {
+      width: 100%;
       padding: 12px 14px;
       margin-bottom: 14px;
       border: 1.5px solid rgba(226, 183, 20, 0.3);
@@ -100,19 +88,32 @@
       font-family: inherit;
     }
 
-    input::placeholder {
-      color: #707070;
-    }
-    
-    input:focus { 
+    input:not([type="range"]):not([type="checkbox"])::placeholder { color: #707070; }
+
+    input:not([type="range"]):not([type="checkbox"]):focus {
       outline: none;
       border-color: #e2b714;
       background: rgba(15, 52, 96, 0.8);
       box-shadow: 0 0 0 3px rgba(226, 183, 20, 0.1);
     }
-    
-    button { 
-      width: 100%; 
+
+    /* ── Range input reset ───────────────────────────────────────── */
+    input[type="range"] {
+      width: 100%;
+      padding: 0;
+      margin: 0;
+      border: none;
+      background: transparent;
+      border-radius: 0;
+      accent-color: #e2b714;
+      cursor: pointer;
+    }
+
+    input[type="range"]:focus { outline: none; box-shadow: none; border: none; }
+
+    /* ── Buttons ─────────────────────────────────────────────────── */
+    button {
+      width: 100%;
       padding: 13px 16px;
       margin-top: 4px;
       margin-bottom: 10px;
@@ -128,19 +129,18 @@
       box-shadow: 0 4px 15px rgba(226, 183, 20, 0.2);
       text-transform: uppercase;
     }
-    
-    button:hover { 
+
+    button:hover {
       background: linear-gradient(135deg, #f0c930 0%, #e2b714 100%);
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(226, 183, 20, 0.3);
     }
 
-    button:active {
-      transform: translateY(0);
-    }
-    
-    .message { 
-      margin-top: 18px; 
+    button:active { transform: translateY(0); }
+
+    /* ── Messages ────────────────────────────────────────────────── */
+    .message {
+      margin-top: 18px;
       padding: 14px 16px;
       border-radius: 6px;
       text-align: center;
@@ -151,205 +151,410 @@
     }
 
     @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    .success { 
-      background: rgba(78, 204, 163, 0.15);
-      color: #4ecca3;
-      border-color: rgba(78, 204, 163, 0.3);
-    }
-    
-    .error { 
-      background: rgba(255, 107, 107, 0.15);
-      color: #ff8787;
-      border-color: rgba(255, 107, 107, 0.3);
-    }
-    
-    .profile { 
-      margin-top: 24px; 
-      padding: 20px;
-      background: linear-gradient(135deg, rgba(15, 52, 96, 0.6) 0%, rgba(22, 33, 62, 0.8) 100%);
-      border-radius: 8px;
-      border: 1px solid rgba(226, 183, 20, 0.2);
-      animation: slideIn 0.3s ease;
-    }
-    
-    .profile p { 
-      margin-bottom: 12px;
-      font-size: 14px;
-      line-height: 1.6;
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    .profile strong {
-      color: #e2b714;
-      font-weight: 600;
+    .success { background: rgba(78,204,163,0.15); color: #4ecca3; border-color: rgba(78,204,163,0.3); }
+    .error   { background: rgba(255,107,107,0.15); color: #ff8787; border-color: rgba(255,107,107,0.3); }
+
+    /* ── Profile card ────────────────────────────────────────────── */
+    .profile {
+      margin-top: 8px;
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(15,52,96,0.6) 0%, rgba(22,33,62,0.8) 100%);
+      border-radius: 8px;
+      border: 1px solid rgba(226,183,20,0.2);
+      animation: slideIn 0.3s ease;
     }
-    
-    .hidden { display: none; }
-    
-    .logout-btn { 
+
+    .profile p { margin-bottom: 12px; font-size: 14px; line-height: 1.6; }
+    .profile p:last-child { margin-bottom: 0; }
+    .profile strong { color: #e2b714; font-weight: 600; }
+
+    .hidden { display: none !important; }
+
+    .logout-btn {
       margin-top: 16px;
       background: linear-gradient(135deg, #d4a812 0%, #b8940a 100%);
-      box-shadow: 0 4px 15px rgba(212, 168, 18, 0.2);
+      box-shadow: 0 4px 15px rgba(212,168,18,0.2);
     }
-    
-    .logout-btn:hover { 
+
+    .logout-btn:hover {
       background: linear-gradient(135deg, #e2b714 0%, #d4a812 100%);
-      box-shadow: 0 6px 20px rgba(226, 183, 20, 0.3);
+      box-shadow: 0 6px 20px rgba(226,183,20,0.3);
     }
-    
+
     .form-section { display: none; }
     .form-section.active { display: block; }
 
+    /* ── Main App Shell ──────────────────────────────────────────── */
+    #main-app {
+      width: 100%;
+      max-width: 900px;
+      animation: slideIn 0.3s ease;
+    }
+
+    .app-header {
+      background: rgba(22, 33, 62, 0.7);
+      border-radius: 12px 12px 0 0;
+      border: 1px solid rgba(226, 183, 20, 0.1);
+      border-bottom: none;
+      padding: 24px 30px 0;
+      backdrop-filter: blur(10px);
+    }
+
+    .app-header h2 { margin-bottom: 20px; }
+
+    .app-nav {
+      display: flex;
+      border-bottom: 2px solid rgba(226, 183, 20, 0.2);
+    }
+
+    .app-tab {
+      padding: 12px 20px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      color: #b0b0b0;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      margin-bottom: -2px;
+      user-select: none;
+    }
+
+    .app-tab:hover { color: #e2b714; background: rgba(226, 183, 20, 0.05); }
+    .app-tab.active { border-bottom-color: #e2b714; color: #e2b714; }
+
+    .app-panel {
+      background: rgba(22, 33, 62, 0.7);
+      border: 1px solid rgba(226, 183, 20, 0.1);
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      padding: 30px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .app-panel > h3:first-child { margin-top: 0; }
+
+    /* ── Add Flag Form ───────────────────────────────────────────── */
+    .add-flag-form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .add-flag-form input:not([type="range"]):not([type="checkbox"]) {
+      flex: 1;
+      min-width: 140px;
+      margin-bottom: 0;
+    }
+
+    .add-flag-form button {
+      width: auto;
+      padding: 12px 24px;
+      margin: 0;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ── Flag Cards ──────────────────────────────────────────────── */
+    #flags-list { display: flex; flex-direction: column; gap: 14px; }
+
+    .flag-card {
+      background: rgba(15, 52, 96, 0.4);
+      border: 1px solid rgba(226, 183, 20, 0.15);
+      border-radius: 8px;
+      padding: 20px;
+      transition: border-color 0.2s ease;
+    }
+
+    .flag-card:hover { border-color: rgba(226, 183, 20, 0.3); }
+
+    .flag-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+      gap: 12px;
+    }
+
+    .flag-info { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .flag-name { font-weight: 600; font-size: 15px; color: #e0e0e0; }
+    .flag-desc { font-size: 12px; color: #888; }
+
+    /* ── Toggle Switch ───────────────────────────────────────────── */
+    .toggle {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .toggle input[type="checkbox"] {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      margin: 0;
+      padding: 0;
+      position: absolute;
+      border: none;
+      background: none;
+      box-shadow: none;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: rgba(255,255,255,0.08);
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.12);
+      transition: 0.3s;
+    }
+
+    .toggle-slider::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      left: 2px;
+      top: 2px;
+      background: #666;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+
+    .toggle input:checked + .toggle-slider {
+      background: rgba(226,183,20,0.2);
+      border-color: rgba(226,183,20,0.5);
+    }
+
+    .toggle input:checked + .toggle-slider::after {
+      transform: translateX(20px);
+      background: #e2b714;
+    }
+
+    /* ── Rollout Slider ──────────────────────────────────────────── */
+    .flag-rollout { margin-bottom: 16px; }
+
+    .rollout-label {
+      display: block;
+      font-size: 13px;
+      color: #b0b0b0;
+      margin-bottom: 10px;
+    }
+
+    .rollout-label strong { color: #e2b714; }
+
+    /* ── Simulate Section ────────────────────────────────────────── */
+    .flag-simulate { margin-bottom: 14px; }
+
+    .flag-simulate input:not([type="range"]):not([type="checkbox"]) {
+      margin-bottom: 8px;
+    }
+
+    .sim-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+    .sim-btn {
+      width: auto;
+      padding: 8px 18px;
+      margin: 0;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .access-badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 20px;
+    }
+
+    .badge-granted { background: rgba(78,204,163,0.15); color: #4ecca3; border: 1px solid rgba(78,204,163,0.3); }
+    .badge-denied  { background: rgba(255,107,107,0.15); color: #ff8787; border: 1px solid rgba(255,107,107,0.3); }
+
+    /* ── Delete Button ───────────────────────────────────────────── */
+    .flag-footer { display: flex; justify-content: flex-end; margin-top: 4px; }
+
+    .delete-flag-btn {
+      width: auto;
+      padding: 5px 14px;
+      margin: 0;
+      font-size: 11px;
+      background: transparent;
+      color: #ff8787;
+      border: 1px solid rgba(255,107,107,0.25);
+      box-shadow: none;
+    }
+
+    .delete-flag-btn:hover {
+      background: rgba(255,107,107,0.1);
+      border-color: rgba(255,107,107,0.5);
+      transform: none;
+      box-shadow: none;
+    }
+
+    .no-flags {
+      text-align: center;
+      color: #555;
+      font-size: 14px;
+      padding: 48px 0;
+    }
+
+    /* ── Settings panel constraints ──────────────────────────────── */
+    #panel-settings input:not([type="range"]):not([type="checkbox"]) { max-width: 420px; }
+    #panel-settings button { max-width: 420px; }
+
+    /* ── Responsive ──────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      body { padding: 20px 12px; }
+      .add-flag-form { flex-direction: column; }
+      .add-flag-form input:not([type="range"]):not([type="checkbox"]) { min-width: 0; }
+      .add-flag-form button { width: 100%; }
+      .app-panel { padding: 20px; }
+      .app-header { padding: 20px 20px 0; }
+      #panel-settings input:not([type="range"]):not([type="checkbox"]),
+      #panel-settings button { max-width: 100%; }
+    }
+
     @media (max-width: 480px) {
-      .container {
-        padding: 30px 20px;
-        border-radius: 12px;
-      }
-      h2 {
-        font-size: 24px;
-        margin-bottom: 24px;
-      }
-      .tabs {
-        margin-bottom: 24px;
-      }
-      .tab {
-        padding: 10px 12px;
-        font-size: 13px;
-      }
+      #auth-container { padding: 30px 20px; }
+      h2 { font-size: 24px; margin-bottom: 24px; }
+      .tabs { margin-bottom: 24px; }
+      .tab { padding: 10px 12px; font-size: 13px; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
+
+  <!-- Auth Container -->
+  <div id="auth-container">
     <h2>Profiles App</h2>
 
     <div class="tabs">
       <div class="tab active" onclick="showTab('signup')">Sign Up</div>
       <div class="tab" onclick="showTab('login')">Log In</div>
-      <div class="tab hidden" id="settings-tab" onclick="showTab('settings')">Settings</div>
     </div>
 
-    <!-- Sign Up -->
     <div id="signup-form" class="form-section active">
-      <input type="text" id="s-first" placeholder="First name" />
-      <input type="text" id="s-last" placeholder="Last name" />
-      <input type="text" id="s-username" placeholder="Username" />
-      <input type="email" id="s-email" placeholder="Email" />
+      <input type="text"     id="s-first"    placeholder="First name" />
+      <input type="text"     id="s-last"     placeholder="Last name" />
+      <input type="text"     id="s-username" placeholder="Username" />
+      <input type="email"    id="s-email"    placeholder="Email" />
       <input type="password" id="s-password" placeholder="Password" />
       <button onclick="signup()">Create Account</button>
     </div>
 
-    <!-- Login -->
-    <div id="login-form" class="form-section hidden">
-      <input type="text" id="l-username" placeholder="Username" />
+    <div id="login-form" class="form-section">
+      <input type="text"     id="l-username" placeholder="Username" />
       <input type="password" id="l-password" placeholder="Password" />
       <button onclick="login()">Log In</button>
     </div>
 
-    <!-- Settings -->
-    <div id="settings-form" class="form-section hidden">
+    <div id="auth-message"></div>
+  </div>
+
+  <!-- Main App (authenticated) -->
+  <div id="main-app" class="hidden">
+
+    <div class="app-header">
+      <h2>Profiles App</h2>
+      <div class="app-nav">
+        <div class="app-tab active" onclick="switchPanel('flags')">Feature Flags</div>
+        <div class="app-tab"        onclick="switchPanel('settings')">Settings</div>
+      </div>
+    </div>
+
+    <!-- Feature Flags Panel -->
+    <div id="panel-flags" class="app-panel">
+      <h3>Manage Feature Flags</h3>
+      <div class="add-flag-form">
+        <input type="text" id="new-flag-name" placeholder="Flag name (e.g. Dark Mode)" />
+        <input type="text" id="new-flag-desc" placeholder="Description (optional)" />
+        <button onclick="addFlag()">+ Add Flag</button>
+      </div>
+      <div id="flags-list"></div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div id="panel-settings" class="app-panel hidden">
+      <h3>Profile</h3>
       <div id="profile-info"></div>
       <h3>Change Password</h3>
       <input type="password" id="current-password" placeholder="Current password" />
-      <input type="password" id="new-password" placeholder="New password" />
+      <input type="password" id="new-password"     placeholder="New password" />
       <input type="password" id="confirm-password" placeholder="Confirm new password" />
       <button onclick="changePassword()">Change Password</button>
       <button class="logout-btn" onclick="logout()">Log Out</button>
     </div>
 
-    <div id="message"></div>
-    <div id="profile" class="profile hidden"></div>
+    <div id="app-message"></div>
   </div>
 
   <script>
-    // Check authentication on page load
-    window.addEventListener('load', async () => {
-      await checkAuth();
-    });
+    // ── Bootstrap ──────────────────────────────────────────────────
+    window.addEventListener('load', () => checkAuth());
 
     async function checkAuth() {
       try {
         const res = await fetch('/api/check-auth');
         const data = await res.json();
-        if (data.authenticated) {
-          showAuthenticatedUI(data.user);
-        }
+        if (data.authenticated) showAuthenticatedUI();
       } catch (err) {
         console.error('Auth check error:', err);
       }
     }
 
-    function showAuthenticatedUI(user) {
-      // Hide signup/login tabs, show settings tab
-      document.getElementById('signup-form').classList.remove('active');
-      document.getElementById('login-form').classList.remove('active');
-      document.getElementById('settings-form').classList.add('active');
-      
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.getElementById('settings-tab').classList.remove('hidden');
-      document.getElementById('settings-tab').classList.add('active');
-      
-      document.querySelector('.tab:nth-child(1)').classList.add('hidden');
-      document.querySelector('.tab:nth-child(2)').classList.add('hidden');
-      
+    // ── Auth shell ─────────────────────────────────────────────────
+    function showAuthenticatedUI() {
+      document.getElementById('auth-container').classList.add('hidden');
+      document.getElementById('main-app').classList.remove('hidden');
       loadSettings();
+      initFlags();
     }
 
     function showUnauthenticatedUI() {
-      // Show signup/login tabs, hide settings tab
-      document.getElementById('settings-form').classList.remove('active');
+      document.getElementById('main-app').classList.add('hidden');
+      document.getElementById('auth-container').classList.remove('hidden');
       document.getElementById('signup-form').classList.add('active');
-      document.getElementById('settings-tab').classList.add('hidden');
-      
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('hidden', 'active'));
-      document.querySelector('.tab:nth-child(1)').classList.add('active');
-      
-      document.getElementById('message').innerHTML = '';
-      document.getElementById('profile').classList.add('hidden');
+      document.getElementById('login-form').classList.remove('active');
+      document.querySelectorAll('#auth-container .tab').forEach((t, i) => {
+        t.classList.toggle('active', i === 0);
+      });
+      document.getElementById('auth-message').innerHTML = '';
     }
 
     function showTab(tab) {
       document.getElementById('signup-form').classList.toggle('active', tab === 'signup');
       document.getElementById('login-form').classList.toggle('active', tab === 'login');
-      document.getElementById('settings-form').classList.toggle('active', tab === 'settings');
-      
-      document.querySelectorAll('.tab').forEach((t, i) => {
-        t.classList.toggle('active', 
-          (tab === 'signup' && i === 0) || 
-          (tab === 'login' && i === 1) ||
-          (tab === 'settings' && t.id === 'settings-tab')
-        );
+      document.querySelectorAll('#auth-container .tab').forEach((t, i) => {
+        t.classList.toggle('active', (tab === 'signup' && i === 0) || (tab === 'login' && i === 1));
       });
-      document.getElementById('message').innerHTML = '';
-      if (tab !== 'settings') {
-        document.getElementById('profile').classList.add('hidden');
-      }
+      document.getElementById('auth-message').innerHTML = '';
+    }
+
+    function switchPanel(panel) {
+      document.getElementById('panel-flags').classList.toggle('hidden', panel !== 'flags');
+      document.getElementById('panel-settings').classList.toggle('hidden', panel !== 'settings');
+      document.querySelectorAll('.app-tab').forEach((t, i) => {
+        t.classList.toggle('active', (panel === 'flags' && i === 0) || (panel === 'settings' && i === 1));
+      });
+      document.getElementById('app-message').innerHTML = '';
     }
 
     function showMessage(text, type) {
-      document.getElementById('message').innerHTML = `<div class="message ${type}">${text}</div>`;
+      const inApp = !document.getElementById('main-app').classList.contains('hidden');
+      const el = document.getElementById(inApp ? 'app-message' : 'auth-message');
+      el.innerHTML = `<div class="message ${type}">${text}</div>`;
     }
 
-    function showProfile(user) {
-      const el = document.getElementById('profile');
-      el.classList.remove('hidden');
-      el.innerHTML = `
-        <p><strong>Name:</strong> ${user.first_name} ${user.last_name}</p>
-        <p><strong>Username:</strong> ${user.username}</p>
-        <p><strong>Email:</strong> ${user.email}</p>
-        <p><strong>Joined:</strong> ${new Date(user.created_at).toLocaleDateString()}</p>
-      `;
-    }
-
+    // ── Settings ───────────────────────────────────────────────────
     async function loadSettings() {
       try {
         const res = await fetch('/api/settings');
@@ -359,16 +564,15 @@
           return;
         }
         const data = await res.json();
-        const user = data.user;
-        const profileEl = document.getElementById('profile-info');
-        profileEl.innerHTML = `
+        const u = data.user;
+        document.getElementById('profile-info').innerHTML = `
           <div class="profile">
-            <p><strong>Name:</strong> ${user.first_name} ${user.last_name}</p>
-            <p><strong>Username:</strong> ${user.username}</p>
-            <p><strong>Email:</strong> ${user.email}</p>
-            ${user.phone ? `<p><strong>Phone:</strong> ${user.phone}</p>` : ''}
-            ${user.bio ? `<p><strong>Bio:</strong> ${user.bio}</p>` : ''}
-            <p><strong>Member since:</strong> ${new Date(user.created_at).toLocaleDateString()}</p>
+            <p><strong>Name:</strong> ${u.first_name} ${u.last_name}</p>
+            <p><strong>Username:</strong> ${u.username}</p>
+            <p><strong>Email:</strong> ${u.email}</p>
+            ${u.phone ? `<p><strong>Phone:</strong> ${u.phone}</p>` : ''}
+            ${u.bio   ? `<p><strong>Bio:</strong> ${u.bio}</p>`     : ''}
+            <p><strong>Member since:</strong> ${new Date(u.created_at).toLocaleDateString()}</p>
           </div>
         `;
       } catch (err) {
@@ -377,35 +581,180 @@
       }
     }
 
+    // ── Feature Flags: data layer ──────────────────────────────────
+    const FLAGS_KEY = 'feature_flags_v1';
+
+    const DEFAULT_FLAGS = [
+      { id: 'dark_mode',       name: 'Dark Mode',       description: 'Enable dark theme for all users',        enabled: true,  rolloutPercentage: 100 },
+      { id: 'beta_dashboard',  name: 'Beta Dashboard',  description: 'New analytics dashboard (experimental)', enabled: true,  rolloutPercentage: 25  },
+      { id: 'ai_assistant',    name: 'AI Assistant',    description: 'Experimental AI-powered features',       enabled: false, rolloutPercentage: 10  }
+    ];
+
+    function loadFlags() {
+      try {
+        const raw = localStorage.getItem(FLAGS_KEY);
+        return raw ? JSON.parse(raw) : DEFAULT_FLAGS.map(f => ({ ...f }));
+      } catch {
+        return DEFAULT_FLAGS.map(f => ({ ...f }));
+      }
+    }
+
+    function saveFlags(flags) {
+      localStorage.setItem(FLAGS_KEY, JSON.stringify(flags));
+    }
+
+    function slugify(str) {
+      return str.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '').slice(0, 32);
+    }
+
+    function createFlag(name, description) {
+      const flags = loadFlags();
+      let id = slugify(name) || 'flag_' + Date.now();
+      let unique = id, n = 1;
+      while (flags.some(f => f.id === unique)) unique = id + '_' + n++;
+      saveFlags([...flags, { id: unique, name: name.trim(), description: description.trim(), enabled: false, rolloutPercentage: 0 }]);
+    }
+
+    function deleteFlag(id) {
+      saveFlags(loadFlags().filter(f => f.id !== id));
+    }
+
+    function updateFlag(id, patch) {
+      const flags = loadFlags();
+      const i = flags.findIndex(f => f.id === id);
+      if (i !== -1) { flags[i] = { ...flags[i], ...patch }; saveFlags(flags); }
+    }
+
+    // ── Feature Flags: access logic ────────────────────────────────
+    function simpleHash(str) {
+      let h = 0;
+      for (let i = 0; i < str.length; i++) h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+      return Math.abs(h);
+    }
+
+    function computeAccess(userId, flag) {
+      if (!flag.enabled)                 return false;
+      if (flag.rolloutPercentage >= 100) return true;
+      if (flag.rolloutPercentage <= 0)   return false;
+      return simpleHash(userId + ':' + flag.id) % 100 < flag.rolloutPercentage;
+    }
+
+    // ── Feature Flags: render ──────────────────────────────────────
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function initFlags() { renderFlags(); }
+
+    function renderFlags() {
+      const flags = loadFlags();
+      const list = document.getElementById('flags-list');
+      if (!flags.length) {
+        list.innerHTML = '<p class="no-flags">No flags yet. Add one above.</p>';
+        return;
+      }
+      list.innerHTML = flags.map(flag => `
+        <div class="flag-card">
+          <div class="flag-header">
+            <div class="flag-info">
+              <span class="flag-name">${escapeHtml(flag.name)}</span>
+              ${flag.description ? `<span class="flag-desc">${escapeHtml(flag.description)}</span>` : ''}
+            </div>
+            <label class="toggle" title="${flag.enabled ? 'Enabled' : 'Disabled'}">
+              <input type="checkbox" ${flag.enabled ? 'checked' : ''} onchange="toggleFlag('${flag.id}', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="flag-rollout">
+            <span class="rollout-label">Rollout: <strong id="pct-${flag.id}">${flag.rolloutPercentage}%</strong></span>
+            <input type="range" min="0" max="100" value="${flag.rolloutPercentage}"
+              oninput="updateRolloutLabel('${flag.id}', this.value)"
+              onchange="saveRollout('${flag.id}', this.value)">
+          </div>
+
+          <div class="flag-simulate">
+            <input type="text" id="sim-${flag.id}" placeholder="Enter a user ID to simulate access…">
+            <div class="sim-row">
+              <button class="sim-btn" onclick="simulateAccess('${flag.id}')">Simulate</button>
+              <span class="access-badge hidden" id="result-${flag.id}"></span>
+            </div>
+          </div>
+
+          <div class="flag-footer">
+            <button class="delete-flag-btn" onclick="confirmDeleteFlag('${flag.id}')">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleFlag(id, enabled) {
+      updateFlag(id, { enabled });
+      renderFlags();
+    }
+
+    function updateRolloutLabel(id, value) {
+      const el = document.getElementById('pct-' + id);
+      if (el) el.textContent = value + '%';
+    }
+
+    function saveRollout(id, value) {
+      updateFlag(id, { rolloutPercentage: parseInt(value, 10) });
+    }
+
+    function simulateAccess(id) {
+      const input  = document.getElementById('sim-' + id);
+      const result = document.getElementById('result-' + id);
+      const userId = input.value.trim();
+      if (!userId) { input.focus(); return; }
+      const flag = loadFlags().find(f => f.id === id);
+      if (!flag) return;
+      const granted = computeAccess(userId, flag);
+      result.textContent = granted ? 'Access Granted' : 'No Access';
+      result.className = 'access-badge ' + (granted ? 'badge-granted' : 'badge-denied');
+    }
+
+    function confirmDeleteFlag(id) {
+      const flag = loadFlags().find(f => f.id === id);
+      const name = flag ? flag.name : id;
+      if (confirm(`Delete flag "${name}"?`)) {
+        deleteFlag(id);
+        renderFlags();
+      }
+    }
+
+    function addFlag() {
+      const nameEl = document.getElementById('new-flag-name');
+      const descEl = document.getElementById('new-flag-desc');
+      const name = nameEl.value.trim();
+      if (!name) { nameEl.focus(); return; }
+      createFlag(name, descEl.value);
+      nameEl.value = '';
+      descEl.value = '';
+      renderFlags();
+    }
+
+    // ── Auth actions ───────────────────────────────────────────────
     async function signup() {
       const body = {
         firstName: document.getElementById('s-first').value,
-        lastName: document.getElementById('s-last').value,
-        username: document.getElementById('s-username').value,
-        email: document.getElementById('s-email').value,
-        password: document.getElementById('s-password').value
+        lastName:  document.getElementById('s-last').value,
+        username:  document.getElementById('s-username').value,
+        email:     document.getElementById('s-email').value,
+        password:  document.getElementById('s-password').value
       };
-
       try {
-        const res = await fetch('/api/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
-        });
+        const res  = await fetch('/api/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
         const data = await res.json();
         if (res.ok) {
           showMessage('Account created! Please log in.', 'success');
-          document.getElementById('s-first').value = '';
-          document.getElementById('s-last').value = '';
-          document.getElementById('s-username').value = '';
-          document.getElementById('s-email').value = '';
-          document.getElementById('s-password').value = '';
+          ['s-first','s-last','s-username','s-email','s-password'].forEach(id => { document.getElementById(id).value = ''; });
         } else {
           showMessage(data.error, 'error');
         }
-      } catch (err) {
-        showMessage('Connection error', 'error');
-      }
+      } catch { showMessage('Connection error', 'error'); }
     }
 
     async function login() {
@@ -413,90 +762,49 @@
         username: document.getElementById('l-username').value,
         password: document.getElementById('l-password').value
       };
-
       try {
-        const res = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-          credentials: 'same-origin'
-        });
+        const res  = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), credentials: 'same-origin' });
         const data = await res.json();
         if (res.ok) {
-          showMessage('Welcome back!', 'success');
-          showAuthenticatedUI(data.user);
+          showAuthenticatedUI();
         } else {
           showMessage(data.error, 'error');
         }
-      } catch (err) {
-        showMessage('Connection error', 'error');
-      }
+      } catch { showMessage('Connection error', 'error'); }
     }
 
     async function changePassword() {
-      const currentPassword = document.getElementById('current-password').value;
-      const newPassword = document.getElementById('new-password').value;
-      const confirmPassword = document.getElementById('confirm-password').value;
+      const current = document.getElementById('current-password').value;
+      const next    = document.getElementById('new-password').value;
+      const confirm = document.getElementById('confirm-password').value;
 
-      if (!currentPassword || !newPassword || !confirmPassword) {
-        showMessage('All password fields are required', 'error');
-        return;
-      }
-
-      if (newPassword !== confirmPassword) {
-        showMessage('New passwords do not match', 'error');
-        return;
-      }
-
-      if (newPassword.length < 6) {
-        showMessage('New password must be at least 6 characters', 'error');
-        return;
-      }
+      if (!current || !next || !confirm) { showMessage('All password fields are required', 'error'); return; }
+      if (next !== confirm)              { showMessage('New passwords do not match', 'error'); return; }
+      if (next.length < 6)              { showMessage('New password must be at least 6 characters', 'error'); return; }
 
       try {
-        const res = await fetch('/api/change-password', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            currentPassword,
-            newPassword
-          }),
-          credentials: 'same-origin'
-        });
+        const res  = await fetch('/api/change-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ currentPassword: current, newPassword: next }), credentials: 'same-origin' });
         const data = await res.json();
         if (res.ok) {
           showMessage(data.message, 'success');
-          document.getElementById('current-password').value = '';
-          document.getElementById('new-password').value = '';
-          document.getElementById('confirm-password').value = '';
-          setTimeout(() => {
-            showUnauthenticatedUI();
-            showTab('login');
-          }, 2000);
+          ['current-password','new-password','confirm-password'].forEach(id => { document.getElementById(id).value = ''; });
+          setTimeout(() => { showUnauthenticatedUI(); showTab('login'); }, 2000);
         } else {
           showMessage(data.error, 'error');
         }
-      } catch (err) {
-        showMessage('Connection error', 'error');
-      }
+      } catch { showMessage('Connection error', 'error'); }
     }
 
     async function logout() {
       try {
-        const res = await fetch('/api/logout', {
-          method: 'POST',
-          credentials: 'same-origin'
-        });
+        const res = await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
         if (res.ok) {
-          showMessage('Logged out successfully', 'success');
           showUnauthenticatedUI();
           showTab('login');
         } else {
           showMessage('Logout failed', 'error');
         }
-      } catch (err) {
-        showMessage('Connection error', 'error');
-      }
+      } catch { showMessage('Connection error', 'error'); }
     }
   </script>
 </body>
