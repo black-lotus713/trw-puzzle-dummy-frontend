@@ -352,28 +352,69 @@
 
     .rollout-label strong { color: #e2b714; }
 
-    /* ── Simulate Section ────────────────────────────────────────── */
-    .flag-simulate { margin-bottom: 14px; }
-
-    .flag-simulate input:not([type="range"]):not([type="checkbox"]) {
-      margin-bottom: 8px;
+    /* ── Simulate User Access Widget ────────────────────────────── */
+    .simulate-widget {
+      background: rgba(226, 183, 20, 0.05);
+      border: 1px solid rgba(226, 183, 20, 0.2);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-bottom: 24px;
     }
 
-    .sim-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .simulate-widget h4 {
+      margin: 0 0 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #e2b714;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .sim-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .sim-row input:not([type="range"]):not([type="checkbox"]) {
+      flex: 1;
+      min-width: 180px;
+      margin: 0;
+    }
 
     .sim-btn {
       width: auto;
-      padding: 8px 18px;
+      padding: 10px 20px;
       margin: 0;
-      font-size: 12px;
+      font-size: 13px;
       flex-shrink: 0;
+    }
+
+    .sim-results {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sim-result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 6px;
+      gap: 12px;
+    }
+
+    .sim-flag-name {
+      font-size: 13px;
+      color: #c0c0c0;
+      font-weight: 500;
     }
 
     .access-badge {
       font-size: 12px;
       font-weight: 600;
-      padding: 5px 12px;
+      padding: 4px 10px;
       border-radius: 20px;
+      flex-shrink: 0;
     }
 
     .badge-granted { background: rgba(78,204,163,0.15); color: #4ecca3; border: 1px solid rgba(78,204,163,0.3); }
@@ -478,6 +519,14 @@
         <input type="text" id="new-flag-name" placeholder="Flag name (e.g. Dark Mode)" />
         <input type="text" id="new-flag-desc" placeholder="Description (optional)" />
         <button onclick="addFlag()">+ Add Flag</button>
+      </div>
+      <div class="simulate-widget">
+        <h4>Simulate User Access</h4>
+        <div class="sim-row">
+          <input type="text" id="global-sim-user" placeholder="Enter a user ID to simulate access across all flags…">
+          <button class="sim-btn" onclick="simulateAllAccess()">Simulate</button>
+        </div>
+        <div id="sim-results" class="sim-results hidden"></div>
       </div>
       <div id="flags-list"></div>
     </div>
@@ -675,14 +724,6 @@
               onchange="saveRollout('${flag.id}', this.value)">
           </div>
 
-          <div class="flag-simulate">
-            <input type="text" id="sim-${flag.id}" placeholder="Enter a user ID to simulate access…">
-            <div class="sim-row">
-              <button class="sim-btn" onclick="simulateAccess('${flag.id}')">Simulate</button>
-              <span class="access-badge hidden" id="result-${flag.id}"></span>
-            </div>
-          </div>
-
           <div class="flag-footer">
             <button class="delete-flag-btn" onclick="confirmDeleteFlag('${flag.id}')">Delete</button>
           </div>
@@ -704,16 +745,25 @@
       updateFlag(id, { rolloutPercentage: parseInt(value, 10) });
     }
 
-    function simulateAccess(id) {
-      const input  = document.getElementById('sim-' + id);
-      const result = document.getElementById('result-' + id);
-      const userId = input.value.trim();
+    function simulateAllAccess() {
+      const input     = document.getElementById('global-sim-user');
+      const resultsEl = document.getElementById('sim-results');
+      const userId    = input.value.trim();
       if (!userId) { input.focus(); return; }
-      const flag = loadFlags().find(f => f.id === id);
-      if (!flag) return;
-      const granted = computeAccess(userId, flag);
-      result.textContent = granted ? 'Access Granted' : 'No Access';
-      result.className = 'access-badge ' + (granted ? 'badge-granted' : 'badge-denied');
+      const flags = loadFlags();
+      if (!flags.length) {
+        resultsEl.innerHTML = '<p style="color:#888;font-size:13px;margin:0">No flags configured.</p>';
+        resultsEl.classList.remove('hidden');
+        return;
+      }
+      resultsEl.innerHTML = flags.map(flag => {
+        const granted = computeAccess(userId, flag);
+        return `<div class="sim-result-row">
+          <span class="sim-flag-name">${escapeHtml(flag.name)}</span>
+          <span class="access-badge ${granted ? 'badge-granted' : 'badge-denied'}">${granted ? 'Access Granted' : 'No Access'}</span>
+        </div>`;
+      }).join('');
+      resultsEl.classList.remove('hidden');
     }
 
     function confirmDeleteFlag(id) {
